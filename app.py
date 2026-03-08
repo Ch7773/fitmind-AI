@@ -4,6 +4,7 @@ from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import re
 from flask import Flask, render_template, request
+import os
 import joblib
 import numpy as np
 
@@ -461,5 +462,5 @@ def chatbot():
 
     return jsonify({'reply': reply})
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
