@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fitness Planner - FitMind</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: url('{{ url_for('static', filename='images/2.jpg') }}') no-repeat center center/cover;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #fff;
+        }
+
+        header {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            color: #00ffae;
+        }
+
+        nav a {
+            color: #fff;
+            margin-left: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        nav a:hover {
+            color: #00ffae;
+        }
+
+        main {
+            flex: 1;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .form-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .form-card h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #00ffae;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        label {
+            display: block;
+            margin: 12px 0 6px;
+            font-weight: 500;
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            margin-bottom: 15px;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #00ffae;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #00e69c;
+        }
+
+        .result-section {
+            margin-top: 25px;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .result-section h3,
+        .result-section h4 {
+            color: #00ffae;
+        }
+
+        a.back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #00ffae;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a.back-link:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #bbb;
+        }
+
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            .form-card {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>FitMind</h1>
+        <nav>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/logout">Logout</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="form-card">
+            <h2>Fitness Planner - Predict Your Plan</h2>
+            <form method="POST" action="/predict">
+                <label>Age:</label>
+                <input type="number" name="age" required>
+
+                <label>Gender:</label>
+                <select name="gender" required>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+
+                <label>Height (in cm):</label>
+                <input type="number" name="height_cm" min="1" max="220" step="1" required>
+
+                <label>Weight (in kg):</label>
+                <input type="number" name="weight_kg" min="1" max="200" step="1" required>
+
+
+                <label>Activity Level:</label>
+                <select name="activity" required>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                </select>
+
+                <label>Diet Type:</label>
+                <select name="diet" required>
+                    <option value="vegetarian">Vegetarian</option>
+                    <option value="non-vegetarian">Non-Vegetarian</option>
+                    <option value="vegan">Vegan</option>
+                </select>
+
+                <input type="submit" value="Predict Fitness Plan">
+            </form>
+
+        {% if prediction_text %}
+        <div class="result-section">
+
+        <h3>{{ prediction_text }}</h3>
+        <p><strong>BMI:</strong> {{ bmi }}</p>
+        <p><strong>Exercise Plan:</strong> {{ exercise_plan }}</p>
+          {% if video_url %}
+        <h4>Watch Recommended Exercise:</h4>
+        <iframe width="420" height="315" src="{{ video_url }}" frameborder="0" allowfullscreen></iframe>
+        {% endif %}
+        <p><strong>Diet Plan:</strong> {{ diet_plan }}</p> 
+        {% if image_url %}
+            <h4>Suggested Diet Plan Food:</h4>
+            <img src="{{ image_url }}" alt="Plan Illustration" width="420" height="280" style="border:1px solid #ccc; border-radius:8px;">
+        {% endif %}
+         </div>
+        {% endif %}
+        
+            <a href="/dashboard" class="back-link">← Back to Dashboard</a>
+        
+    </main>
+
+    <footer>
+         FitMind | Personalized Health & Fitness Plans
+    </footer>
+
+</body>
+</html>

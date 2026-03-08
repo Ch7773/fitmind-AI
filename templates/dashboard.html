@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard - FitMind</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: url('{{ url_for('static', filename='images/3.jpg') }}') no-repeat center center/cover;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: #fff;
+    }
+
+    header {
+      background: rgba(0, 0, 0, 0.6);
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2rem;
+      color: #00ffae;
+    }
+
+    nav a {
+      color: #fff;
+      margin-left: 20px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    nav a:hover {
+      color: #00ffae;
+    }
+
+    main {
+      flex: 1;
+      padding: 30px 20px;
+    }
+
+    .dashboard-container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 30px;
+      border-radius: 20px;
+      max-width: 1100px;
+      margin: auto;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .dashboard-container h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #00ffae;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    .grid, .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 25px;
+    }
+
+    .grid-item, .stat-box {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 15px;
+      text-align: center;
+      padding: 25px 20px;
+      transition: 0.3s;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .grid-item:hover, .stat-box:hover {
+      transform: translateY(-5px);
+      background-color: rgba(0, 255, 174, 0.15);
+    }
+
+    .grid-item span, .stat-box span {
+      font-size: 2.5rem;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .grid-item a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .stat-box h3 {
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #00ffae;
+    }
+
+    footer {
+      background: rgba(0, 0, 0, 0.7);
+      padding: 15px;
+      text-align: center;
+      color: #bbb;
+      font-size: 0.9rem;
+    }
+
+    /* Floating Chatbot Button */
+    .chatbot-btn {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      background-color: #00ffae;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      cursor: pointer;
+      z-index: 999;
+    }
+
+    .chatbot-btn i {
+      font-size: 24px;
+      color: #000;
+    }
+    .chatbot-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    /* Chatbot Popup Window */
+    .chatbot-window {
+      position: fixed;
+      bottom: 95px;
+      right: 25px;
+      width: 400px;
+      max-height: 400px;
+      background: rgba(0, 0, 0, 0.9);
+      border-radius: 15px;
+      display: none;
+      flex-direction: column;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      z-index: 998;
+    }
+
+    .chatbot-header {
+      padding: 15px;
+      background: #00ffae;
+      color: #000;
+      font-weight: bold;
+    }
+
+    .chatbot-body {
+      padding: 15px;
+      flex: 1;
+      overflow-y: auto;
+      font-size: 0.9rem;
+    }
+
+    .chatbot-input {
+      display: flex;
+      border-top: 1px solid #333;
+      padding: 10px;
+    }
+
+    .chatbot-input input {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      border-radius: 8px;
+      margin-right: 8px;
+      font-size: 0.9rem;
+    }
+
+    .chatbot-input button {
+      background: #00ffae;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    @media (max-width: 500px) {
+      header h1 {
+        font-size: 1.5rem;
+      }
+
+      nav a {
+        font-size: 0.9rem;
+      }
+
+      .chatbot-window {
+        width: 90%;
+        right: 5%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>FitMind</h1>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/logout">Logout</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="dashboard-container">
+      <h2>Welcome, {{ username }}</h2>
+
+      <!-- Health Stats -->
+      <div class="stats">
+        <div class="stat-box">
+          <span>🔥</span>
+          <h3>Calories Burned</h3>
+          <div class="stat-value" id="calories">0</div>
+        </div>
+        <div class="stat-box">
+          <span>⏱️</span>
+          <h3>Workout Time (min)</h3>
+          <div class="stat-value" id="workout">0</div>
+        </div>
+        <div class="stat-box">
+          <span>💧</span>
+          <h3>Water Intake (L)</h3>
+          <div class="stat-value" id="water">0</div>
+        </div>
+        <div class="stat-box">
+          <span>😊</span>
+          <h3>Mood Score</h3>
+          <div class="stat-value" id="mood">0</div>
+        </div>
+      </div>
+
+      <hr style="margin: 30px 0; border-color: rgba(255,255,255,0.2);">
+
+      <!-- Navigation Grid -->
+      <div class="grid">
+        <div class="grid-item">
+          <span>🏋️</span>
+          <a href="/predict">Fitness Planner</a>
+        </div>
+        <div class="grid-item">
+          <span>🧠</span>
+          <a href="/mentalhealth">Mental Health Tracker</a>
+        </div>
+        <div class="grid-item">
+          <span>🧘</span>
+          <a href="/meditation">Meditation & Wellness</a>
+        </div>
+        <div class="grid-item">
+          <span>🚪</span>
+          <a href="/logout">Logout</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Chatbot Button with Custom Icon -->
+  <button class="chatbot-btn" onclick="toggleChatbot()">
+    <img src="{{ url_for('static', filename='images/chatbot-icon.png') }}" alt="Chatbot">
+  </button>
+
+  <div class="chatbot-window" id="chatbotWidget">
+    <div class="chatbot-header">Chatbot Support</div>
+    <div class="chatbot-body" id="chatLog">
+      <p><strong>Bot:</strong> Hello! How can I help you today?</p>
+    </div>
+    <div class="chatbot-input">
+      <input type="text" id="userInput" placeholder="Type your message...">
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <footer>
+     FitMind | Health Meets Technology
+  </footer>
+
+  <script>
+  const userAge = {{ age | default(25) }};
+  const userGender = "{{ gender | default('Male') }}";
+
+  function getRandomValue(base, range) {
+    return Math.round(base + Math.random() * range);
+  }
+
+  const generateStats = (age, gender) => {
+    let calories = gender === "Male" ? getRandomValue(400, 300) : getRandomValue(350, 250);
+    if (age < 18) calories -= 100;
+    else if (age > 50) calories -= 150;
+
+    let workout = getRandomValue(20, 40);
+    let water = gender === "Male" ? (2.5 + Math.random()).toFixed(1) : (2 + Math.random()).toFixed(1);
+    let mood = getRandomValue(6, 4);
+
+    return { calories, workout, water, mood };
+  };
+
+  const animateCount = (id, target, speed = 15) => {
+    let current = 0;
+    const increment = () => {
+      if (id === 'water') {
+        document.getElementById(id).textContent = target + ' L';
+        return;
+      }
+      if (current < target) {
+        current += Math.ceil(target / 60);
+        if (current > target) current = target;
+        document.getElementById(id).textContent = current;
+        setTimeout(increment, speed);
+      }
+    };
+    increment();
+  };
+
+  const stats = generateStats(userAge, userGender);
+  animateCount('calories', stats.calories);
+  animateCount('workout', stats.workout);
+  animateCount('water', stats.water);
+  animateCount('mood', stats.mood);
+
+  function toggleChatbot() {
+      const chatbot = document.getElementById('chatbotWidget');
+      chatbot.style.display = chatbot.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById('userInput');
+      const msg = input.value.trim();
+      if (!msg) return;
+
+      const chatLog = document.getElementById('chatLog');
+      chatLog.innerHTML += `<p><strong>You:</strong> ${msg}</p>`;
+      input.value = '';
+      input.disabled = true;
+
+      try {
+        const response = await fetch('/chatbot', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: msg })
+        });
+
+        const data = await response.json();
+        chatLog.innerHTML += `<p><strong>Bot:</strong> ${data.reply}</p>`;
+      } catch (err) {
+        chatLog.innerHTML += `<p><strong>Bot:</strong> Sorry, something went wrong.</p>`;
+      } finally {
+        input.disabled = false;
+        chatLog.scrollTop = chatLog.scrollHeight;
+      }
+    }
+
+</script>
+
+</body>
+</html>

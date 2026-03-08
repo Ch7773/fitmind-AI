@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mental Health Prediction - FitMind</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: url('https://images.unsplash.com/photo-1526256262350-7da7584cf5eb') no-repeat center center/cover;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #fff;
+        }
+
+        header {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            color: #00ffae;
+        }
+
+        nav a {
+            color: #fff;
+            margin-left: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: #00ffae;
+        }
+
+        main {
+            flex: 1;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .form-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 750px;
+            width: 100%;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .form-card h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #00ffae;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        label {
+            display: block;
+            margin: 12px 0 6px;
+            font-weight: 500;
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            margin-bottom: 15px;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #00ffae;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #00e69c;
+        }
+
+        .result-section {
+            margin-top: 25px;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .result-section h3 {
+            color: #00ffae;
+        }
+
+        .result-section p {
+            margin-top: 10px;
+        }
+
+        a.back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #00ffae;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a.back-link:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #bbb;
+        }
+
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            .form-card {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>FitMind</h1>
+        <nav>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/logout">Logout</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="form-card">
+            <h2>Mental Health Assessment</h2>
+            <form method="POST" action="/mentalhealth">
+                <label>Age:</label>
+                <input type="number" name="age" required>
+
+                <label>Gender:</label>
+                <select name="gender" required>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+
+                <label>PHQ-9 Score (0-27):</label>
+                <input type="number" name="phq9" min="0" max="27" required>
+
+                <label>GAD-7 Score (0-21):</label>
+                <input type="number" name="gad7" min="0" max="21" required>
+
+                <label>DASS-21 Depression (0-42):</label>
+                <input type="number" name="dass21_depression" min="0" max="42" required>
+
+                <label>DASS-21 Anxiety (0-42):</label>
+                <input type="number" name="dass21_anxiety" min="0" max="42" required>
+
+                <label>DASS-21 Stress (0-42):</label>
+                <input type="number" name="dass21_stress" min="0" max="42" required>
+
+                <label>Mood Score (1-10):</label>
+                <input type="number" name="mood_score" min="1" max="10" required>
+
+                <input type="submit" value="Predict">
+            </form>
+
+            {% if result %}
+            <div class="result-section">
+                <h3>{{ result }}</h3>
+                {% if suggestion %}
+                <p><strong>Suggested Treatment:</strong> {{ suggestion }}</p>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <a href="/dashboard" class="back-link">← Back to Dashboard</a>
+        </div>
+    </main>
+
+    <footer>
+         FitMind | Your Companion for Mental Wellness
+    </footer>
+
+</body>
+</html>
