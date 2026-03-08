@@ -9,3 +9,4 @@ mediapipe
 matplotlib
 mysqlclient
 python-dotenv
+flask-mysqldb
