@@ -1,12 +1,19 @@
 
-from flask import Flask, json, jsonify, render_template, request, redirect, session, url_for
-from flask_mysqldb import MySQL
-import MySQLdb.cursors
-import re
-from flask import Flask, render_template, request
+import json
 import os
+import re
+
 import joblib
 import numpy as np
+import MySQLdb.cursors
+from flask import Flask, jsonify, render_template, request, redirect, session, url_for
+from flask_mysqldb import MySQL
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+def _data_path(filename: str) -> str:
+    return os.path.join(BASE_DIR, filename)
 
 app = Flask(__name__)
 app.secret_key = 'fitmind_secret_key'
@@ -198,13 +205,13 @@ def mental_health():
 #     return redirect(url_for('login'))
 
 # Load model and encoders
-model = joblib.load("fitness_rf_model.pkl")
+model = joblib.load(_data_path("fitness_rf_model.pkl"))
 encoders = {
-    'Gender': joblib.load("encoder_Gender.pkl"),
-    'Activity_Level': joblib.load("encoder_Activity_Level.pkl"),
-    'Diet_Type': joblib.load("encoder_Diet_Type.pkl")
+    'Gender': joblib.load(_data_path("encoder_Gender.pkl")),
+    'Activity_Level': joblib.load(_data_path("encoder_Activity_Level.pkl")),
+    'Diet_Type': joblib.load(_data_path("encoder_Diet_Type.pkl"))
 }
-target_encoder = joblib.load("encoder_Target_Label.pkl")
+target_encoder = joblib.load(_data_path("encoder_Target_Label.pkl"))
 
 # Mapping recommendation based on predicted class
 plans = {
@@ -316,11 +323,10 @@ def predict():
         return render_template('fitness_form.html')
 
     
-    # ===========================Mental Health Tracker================================================
 # Load model and encoders
-model1 = joblib.load("mental_rf_model.pkl")
-le_gender = joblib.load("encoder_gender.pkl")
-le_status = joblib.load("encoder_status.pkl")
+mental_model = joblib.load(_data_path("mental_rf_model.pkl"))
+mental_gender_encoder = joblib.load(_data_path("encoder_gender.pkl"))
+mental_status_encoder = joblib.load(_data_path("encoder_status.pkl"))
 
 # Treatment suggestions
 treatments = {
@@ -334,7 +340,7 @@ treatments = {
 def mentalhealth():
     try:
         age = int(request.form["age"])
-        gender = le_gender.transform([request.form["gender"]])[0]
+        gender = mental_gender_encoder.transform([request.form["gender"]])[0]
         phq9 = int(request.form["phq9"])
         gad7 = int(request.form["gad7"])
         depression = int(request.form["dass21_depression"])
@@ -343,8 +349,8 @@ def mentalhealth():
         mood = int(request.form["mood_score"])
 
         features = np.array([[age, gender, phq9, gad7, depression, anxiety, stress, mood]])
-        prediction = model1.predict(features)
-        status = le_status.inverse_transform(prediction)[0]
+        prediction = mental_model.predict(features)
+        status = mental_status_encoder.inverse_transform(prediction)[0]
 
         suggestion = treatments.get(status, "Consult a professional for personalized advice.")
 
@@ -355,10 +361,10 @@ def mentalhealth():
 # ===================================================================
 
 # Load model and encoders
-meditation_model = joblib.load("meditation_rf_model.pkl")
-le_gender = joblib.load("encoder_gender_meditation.pkl")
-le_meditation = joblib.load("encoder_prev_meditation.pkl")
-le_label = joblib.load("encoder_wellness_label.pkl")
+meditation_model = joblib.load(_data_path("meditation_rf_model.pkl"))
+meditation_gender_encoder = joblib.load(_data_path("encoder_gender_meditation.pkl"))
+meditation_prev_encoder = joblib.load(_data_path("encoder_prev_meditation.pkl"))
+meditation_label_encoder = joblib.load(_data_path("encoder_wellness_label.pkl"))
 
 # Suggestions and content mapping
 content = {
@@ -408,17 +414,17 @@ content = {
 def meditation():
     try:
         age = int(request.form["age"])
-        gender = le_gender.transform([request.form["gender"]])[0]
+        gender = meditation_gender_encoder.transform([request.form["gender"]])[0]
         sleep = float(request.form["sleep_hours"])
         screen = float(request.form["screen_time"])
         work_stress = int(request.form["work_stress"])
         family_stress = int(request.form["family_stress"])
         mindfulness = int(request.form["mindfulness_score"])
-        prev_meditation = le_meditation.transform([request.form["prev_meditation"]])[0]
+        prev_meditation = meditation_prev_encoder.transform([request.form["prev_meditation"]])[0]
 
         features = np.array([[age, gender, sleep, screen, work_stress, family_stress, mindfulness, prev_meditation]])
         pred = meditation_model.predict(features)
-        level = le_label.inverse_transform(pred)[0]
+        level = meditation_label_encoder.inverse_transform(pred)[0]
 
         plan = content.get(level, {})
 
@@ -433,9 +439,9 @@ def meditation():
 
 
 # Load ML components
-chatbotmodel = joblib.load("chatbot_model.pkl")
-vectorizer = joblib.load("chatbot_vectorizer.pkl")
-label_encoder = joblib.load("chatbot_label_encoder.pkl")
+chatbotmodel = joblib.load(_data_path("chatbot_model.pkl"))
+vectorizer = joblib.load(_data_path("chatbot_vectorizer.pkl"))
+label_encoder = joblib.load(_data_path("chatbot_label_encoder.pkl"))
 
 
 @app.route('/chatbot', methods=['POST'])
@@ -449,7 +455,7 @@ def chatbot():
     tag = label_encoder.inverse_transform(y_pred)[0]
 
     # Load intents JSON properly
-    with open("chatbot_intents.json") as f:
+    with open(_data_path("chatbot_intents.json"), encoding="utf-8") as f:
         intents = json.load(f)
 
     # Match tag and return response

@@ -89,6 +89,11 @@
             margin-bottom: 15px;
         }
 
+        select option {
+            color: #000;
+            background: #fff;
+        }
+
         input[type="submit"] {
             width: 100%;
             padding: 12px;
@@ -207,10 +212,6 @@
         <iframe width="420" height="315" src="{{ video_url }}" frameborder="0" allowfullscreen></iframe>
         {% endif %}
         <p><strong>Diet Plan:</strong> {{ diet_plan }}</p> 
-        {% if image_url %}
-            <h4>Suggested Diet Plan Food:</h4>
-            <img src="{{ image_url }}" alt="Plan Illustration" width="420" height="280" style="border:1px solid #ccc; border-radius:8px;">
-        {% endif %}
          </div>
         {% endif %}
         
